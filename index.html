@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Slap Image Fun</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: #111;
+      margin: 0;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+      flex-direction: column;
+    }
+
+    h1 {
+      color: white;
+      position: absolute;
+      top: 20px;
+      font-size: 28px;
+      text-align: center;
+      width: 100%;
+    }
+
+    .container {
+      position: relative;
+    }
+
+    img.main {
+      width: 250px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .hand {
+      position: absolute;
+      width: 100px;
+      pointer-events: none;
+      opacity: 0;
+      transition: all 0.2s;
+    }
+
+    .emoji, .mark {
+      position: absolute;
+      display: none;
+      pointer-events: none;
+    }
+
+    .emoji { font-size: 50px; }
+
+    .mark {
+      width: 80px;
+      height: 80px;
+      background: rgba(255,0,0,0.4);
+      border-radius: 50%;
+    }
+
+    /* IMPACT FLASH */
+    .flash {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: white;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .flash.active {
+      animation: flashAnim 0.2s;
+    }
+
+    @keyframes flashAnim {
+      0% { opacity: 0.8; }
+      100% { opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Slap this person for having a bad haircut</h1>
+
+  <div class="flash" id="flash"></div>
+
+  <div class="container">
+    <img id="slapImage" class="main" src="image.png">
+    <img id="hand" class="hand" src="hand.png">
+    <div id="emoji" class="emoji">😭</div>
+    <div id="mark" class="mark"></div>
+  </div>
+
+  <script>
+    const img = document.getElementById('slapImage');
+    const hand = document.getElementById('hand');
+    const emoji = document.getElementById('emoji');
+    const mark = document.getElementById('mark');
+    const flash = document.getElementById('flash');
+
+    // BEEP SOUND using Web Audio API
+    function playBeep() {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+
+      oscillator.type = 'square';
+      oscillator.frequency.setValueAtTime(600, audioCtx.currentTime);
+
+      oscillator.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      oscillator.start();
+      gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.15);
+
+      setTimeout(() => {
+        oscillator.stop();
+        audioCtx.close();
+      }, 150);
+    }
+
+    img.addEventListener('click', () => {
+      playBeep();
+
+      const directions = ['left','right','top','bottom'];
+      const dir = directions[Math.floor(Math.random()*directions.length)];
+
+      hand.style.opacity = 1;
+
+      if(dir === 'left'){
+        hand.style.left = '-120px';
+        hand.style.top = '40%';
+        hand.style.transform = 'rotate(0deg)';
+        img.style.transform = 'rotate(5deg) translateX(10px)';
+      }
+      else if(dir === 'right'){
+        hand.style.left = '300px';
+        hand.style.top = '40%';
+        hand.style.transform = 'rotate(180deg)';
+        img.style.transform = 'rotate(-5deg) translateX(-10px)';
+      }
+      else if(dir === 'top'){
+        hand.style.top = '-120px';
+        hand.style.left = '40%';
+        hand.style.transform = 'rotate(90deg)';
+        img.style.transform = 'rotate(-5deg) translateY(-10px)';
+      }
+      else {
+        hand.style.top = '300px';
+        hand.style.left = '40%';
+        hand.style.transform = 'rotate(-90deg)';
+        img.style.transform = 'rotate(5deg) translateY(10px)';
+      }
+
+      // FLASH EFFECT
+      flash.classList.add('active');
+
+      // emoji
+      emoji.style.display = 'block';
+      emoji.style.left = '50%';
+      emoji.style.top = '30%';
+      emoji.style.transform = 'translate(-50%, -50%)';
+
+      // mark
+      mark.style.display = 'block';
+      mark.style.left = '50%';
+      mark.style.top = '40%';
+      mark.style.transform = 'translate(-50%, -50%)';
+
+      setTimeout(() => {
+        hand.style.opacity = 0;
+        emoji.style.display = 'none';
+        mark.style.display = 'none';
+        img.style.transform = 'none';
+        flash.classList.remove('active');
+      }, 300);
+    });
+  </script>
+
+</body>
+</html>
